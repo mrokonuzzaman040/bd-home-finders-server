@@ -277,7 +277,7 @@ async function run() {
             res.send(result);
         })
 
-        app.post('/propertys/agent', verifyToken, verifyAgent, async (req, res) => {
+        app.post('/propertys/agent', async (req, res) => {
             const item = req.body;
             const result = await propertyCollection.insertOne(item);
             res.send(result);
@@ -335,6 +335,26 @@ async function run() {
             const result = await offerCollection.insertOne(item);
             res.send(result);
         });
+
+        app.delete('/offer_requests/:id', verifyToken, verifyAgent, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await offerCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.patch('/offer_requests/:id', verifyToken, verifyAgent, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    home_status: req.body.home_status,
+                }
+            }
+
+            const result = await offerCollection.updateOne(filter, updatedDoc)
+            res.send(result);
+        })
 
         app.patch('/offer_requests/:id', async (req, res) => {
             const id = req.params.id;
