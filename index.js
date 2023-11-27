@@ -453,6 +453,42 @@ async function run() {
             })
         })
 
+
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const paymentResult = await paymentCollection.insertOne(payment);
+
+            //  carefully delete each item from the cart
+            console.log('payment info', payment);
+            const query = {
+                _id: {
+                    $in: payment.cartIds.map(id => new ObjectId(id))
+                }
+            };
+
+            const deleteResult = await offerCollection.deleteMany(query);
+
+            // send user email about payment confirmation
+            mg.messages
+                .create(process.env.MAIL_SENDING_DOMAIN, {
+                    from: "Mailgun Sandbox <postmaster@sandboxbdfffae822db40f6b0ccc96ae1cb28f3.mailgun.org>",
+                    to: ["jhankarmahbub7@gmail.com"],
+                    subject: "Bistro Boss Order Confirmation",
+                    text: "Testing some Mailgun awesomness!",
+                    html: `
+                  <div>
+                    <h2>Thank you for your order</h2>
+                    <h4>Your Transaction Id: <strong>${payment.transactionId}</strong></h4>
+                    <p>We would like to get your feedback about the food</p>
+                  </div>
+                `
+                })
+                .then(msg => console.log(msg)) // logs response data
+                .catch(err => console.log(err)); // logs any error`;
+
+            res.send({ paymentResult, deleteResult });
+        })
+
         // app.get('/admin-stats', verifyToken, verifyAdmin, async (req, res) => {
         //     const users = await userCollection.estimatedDocumentCount();
         //     const menuItems = await propertyCollection.estimatedDocumentCount();
