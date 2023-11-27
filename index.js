@@ -7,6 +7,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
 const mailgun = new Mailgun(formData);
+
 const mg = mailgun.client({
     username: 'api',
     key: process.env.MAIL_GUN_API_KEY,
@@ -435,6 +436,22 @@ async function run() {
             const result = await wishCollection.deleteOne(query);
             res.send(result);
         });
+
+
+        // ----------------- Payment related apis -----------------
+        app.post('/create-payment-intent', async (req, res) => {
+            const { price } = req.body;
+            const amount = parseInt(price * 100);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"],
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret
+            })
+        })
 
         // app.get('/admin-stats', verifyToken, verifyAdmin, async (req, res) => {
         //     const users = await userCollection.estimatedDocumentCount();
