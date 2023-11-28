@@ -464,12 +464,12 @@ async function run() {
         app.post('/payments', async (req, res) => {
             const payment = req.body;
             const paymentResult = await paymentCollection.insertOne(payment);
-            // const query = {
-            //     _id: new ObjectId(payment.propertyId)
-            // };
+            const query = {
+                _id: new ObjectId(payment.propertyId)
+            };
 
-            // const deleteResult = await offerCollection.deleteOne(query);
-            res.send({ paymentResult });
+            const deleteResult = await offerCollection.deleteOne(query);
+            res.send({ paymentResult, deleteResult });
         })
 
         // app.get('/admin-stats', verifyToken, verifyAdmin, async (req, res) => {
