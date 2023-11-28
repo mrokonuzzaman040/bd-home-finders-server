@@ -326,7 +326,7 @@ async function run() {
 
         app.get('/offer_requests/user/:email', async (req, res) => {
             const email = req.params.email;
-            const query = { email: email }
+            const query = { buyer_email: email }
             const result = await offerCollection.find(query).toArray();
             res.send(result);
         })
@@ -451,6 +451,13 @@ async function run() {
             res.send({
                 clientSecret: paymentIntent.client_secret
             })
+        })
+
+        app.get('/payments/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await paymentCollection.find(query).toArray();
+            res.send(result);
         })
 
 
