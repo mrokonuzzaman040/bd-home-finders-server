@@ -422,6 +422,20 @@ async function run() {
             res.send(result);
         });
 
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            console.log(review);
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        });
+
+        app.get('/reviews/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        });
+
         // carts collection
         app.get('/wishlist', async (req, res) => {
             const email = req.query.email;
